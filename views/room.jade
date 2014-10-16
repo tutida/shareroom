@@ -1,0 +1,160 @@
+extends layout
+block content
+  //styleSheet
+  link(rel='stylesheet', href='/css/room.css')
+  link(rel='stylesheet', href='/css/palette.css')
+  link(rel='stylesheet', href='/css/uploadWin.css')
+  link(rel='stylesheet', href='/css/jquery.pageslide.css')
+  //Javascript
+  script(src='/js/paint_client.js')
+  script(src='/js/chat_client.js')
+  script(src='/js/upload_client.js')
+  script(src='/js/tab.js')
+  script(src='/js/palette.js')
+  script(src='/js/uploadWin.js')
+  script(src='/js/jquery.pageslide.min.js')
+  script.
+    var socket = io.connect();
+    var minichat = {
+      roomName: '#{room.name}',
+      password: '#{room.password}',
+      userName: '#{user.name}',
+      roomId: '#{room.name}#{room.password}',
+      mode: '#{mode}'
+    };
+    var chatOpen = false;
+    var popupCount = 0;
+    var bkSelect = false;
+    var input_text = false;
+
+  #header
+    ul.head
+      li: .title share-room
+      li: .b ルーム名：#{room.name}
+      li: .b ユーザ名：#{user.name}
+      li: a(href='/').exit 退出
+
+  ul.sidemenu
+    li#open(href='#chat') chat-open
+    li#palette-open palette
+    li#upload-open upload
+    li#bookmark bookmark+
+  #pop
+  #members-box
+    h5 メンバー：
+    ul#members
+
+  #main-contents
+    ul.tab
+      li.select(style='color:#fff;background:#333;') WhiteBoard
+    ul.content
+      li 
+        canvas#canvas-node.canvas(width='840',height='594')
+
+  //アップロードウィンドウ
+  #uploadWin.hide
+    ul.uploadWinTab
+      li#upload.select upload
+      li#files files
+      li#uploadWin-close ×
+    ul.uploadWinContents
+      li#uploadArea
+        p#selectFile
+          label#fileBoxLabel(for='fileBox') Choose A File: 
+          input#fileBox(type='file')
+        p#fileName
+          label#nameBoxLabel(for='nameBox') Name: 
+          input#nameBox(type='text')
+        a#uploadButton upload
+      li#filesArea.hide
+        #UploadedFiles
+
+  //パレットウィンドウ
+  #palette.hide
+    ul.paletteTab
+      li#draw-canvas.select paint
+      li#input-text text
+      li#options-open  options
+      li#palette-close ×
+    .paletteTool
+      #options.hide
+        #option-clear
+          #confirm-clear.hide
+            p 現在のWhiteBoardの内容を全て消去します。
+            p よろしいですか？
+            a yes
+            a no
+          a#clear-button all clear
+        #option-resize
+          #confirm-resize.hide
+            p リサイズをすると現在のWhiteBoardの内容が
+            p すべて消去されます。よろしいですか？
+            a yes
+            a no
+          p#input-width
+            label#resizeWidthLabel(for='resizeWidth') width: 
+            input#resizeWidth(type='number' placeholder='pixel')
+          p#input-height
+            label#resizeHeightLabel(for='resizeHeight') height: 
+            input#resizeHeight(type='number' placeholder='pixel')
+          a#resize-button resize
+      p#tool
+        label#textLabel(for='text') Text:
+        input#text(type='text', value='テキストを入力...クリックで描画...')
+      #styleRadio
+        input#pencil(type='radio', name='styleRadio', value='pencil', checked='checked')
+        label#pencilLabel(for='pencil') Pencil
+        input#brush(type='radio', name='styleRadio', value='brush')
+        label#brushLabel(for='brush') Brush
+      #linewidth
+        label#amountLabel(for='amount') LineWidth:
+        input#amount(type='text', value='10')
+        #lineslider
+      #redslider
+      #greenslider
+      #blueslider
+      #swatch
+      #colorRadio
+        input#black(type='radio', name='colorRadio', value='{r:0,g:0,b:0}')
+        label#blackLabel(for='black')
+        input#red(type='radio', name='colorRadio', value='{r:255,g:0,b:0}')
+        label#redLabel(for='red')
+        input#blue(type='radio', name='colorRadio', value='{r:0,g:0,b:255}')
+        label#blueLabel(for='blue')
+        input#green(type='radio', name='colorRadio', value='{r:0,g:128,b:0}')
+        label#greenLabel(for='green')
+        input#yellow(type='radio', name='colorRadio', value='{r:255,g:255,b:0}')
+        label#yellowLabel(for='yellow')
+        input#white(type='radio', name='colorRadio', value='{r:255,g:255,b:255}')
+        label#whiteLabel(for='white')
+
+  //チャットダイアログ
+  #chat(style='display:none')
+    #messages
+    form
+      label
+        textarea#message(rows='2', placeholder='メッセージを入力...enterで送信...')
+
+  // 入室時の確認ダイアログ
+  #credentialDialog.modal.hide(data-backdrop='static', keyboard='false')
+    .modal-header
+      h3#credential-dialog-header 入室エラー
+    .modal-body
+      p#credential-dialog-message ルーム情報や名前を再入力してください：
+      form#credential-dialog-form.form-horizontal
+        .control-group
+          label.control-label(for='new-room-name') ルーム名
+          .controls
+            input#new-room(type='text', name='roomName', placeholder='ルーム名を入力...')
+        .control-group
+          label.control-label(for='new-name') 表示するあなたの名前
+          .controls
+            input#new-name(type='text', name='yourName', placeholder='表示名を入力...')
+        .control-group
+          label.control-label(for='new-password') 認証用パスワード
+          .controls
+            label
+              input#new-password(type='password', name='password', placeholder='パスワードを入力...')
+            button.btn.btn-primary(type='submit') 再試行
+    .modal-footer
+      a(href='/') トップページへ戻る

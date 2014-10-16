@@ -1,0 +1,201 @@
+//ペイントオブジェクトの処理
+(function(){
+
+  // ページロード時の処理
+  $(document).ready(function () {
+    var paint = new Paint('canvas-node');
+    var paintLog = [];
+    var src2 = null;
+
+    socket.on('connected', function(data) {
+      socket.emit('request points', minichat.roomId);
+    });
+
+    socket.on('request paintLog', function(data, callback) {
+      callback(paintLog);
+    });
+
+    socket.on('draw canvas', function(message){
+      paintLog.push(message);
+      var d = JSON.parse(message);
+      paint.drawLine(d);
+    });
+
+    socket.on('paste', function(src){
+      paintLog.push(src);
+      var img = new Image();
+      img.src = src;
+      img.onload = function() {
+        var SizeW = img.width;
+        var SizeH = img.height;
+        if(img.width > 420 || img.height > 594){
+          var scaleW = img.width/420;
+          var scaleH = img.height/594;
+
+          if(scaleW >= scaleH){
+            SizeW = img.width/scaleW;
+            SizeH = img.height/scaleW;
+          }else{
+            SizeW = img.width/scaleH;
+            SizeH = img.height/scaleH;
+          }
+        }
+        paint.context.drawImage(img, 0, 0,SizeW,SizeH);
+      }
+    });
+
+    socket.on('clear canvas', function(message){
+      paintLog = [];
+      paint.clearCanvas();
+    });
+
+    $('#canvas-clear').on('click', function () {
+      socket.emit("clickClear",minichat.roomId);
+    });
+
+    $(document).on('click', '.click', function(){
+        $(this).find("span:last").remove();
+        src2 = "/uploaded/" + minichat.roomId + "/" + $(this).html(); + new Date().getTime();
+        socket.emit('imagePaste', {src: src2,roomId: minichat.roomId});
+    });
+
+    $(document).on('mouseenter', '.click', function(){
+      var src3 = "/uploaded/" + minichat.roomId + "/" + $(this).html(); + new Date().getTime();
+      var ex = "<img id='Thumb_list' src='" + src3 +"'>";
+      $(this).append($("<span> "+ ex +"</span>"));
+    });
+
+    $(document).on('mouseleave', '.click', function(){
+      $(this).find("span:last").remove();
+    });
+
+  });
+
+  var Paint = function(id) {
+   this.id = id;
+   this.canvas = document.getElementById(id);
+   this.context = this.canvas.getContext('2d');
+
+   this.init();
+   this.setEvents();
+  };
+
+  Paint.prototype.init = function() {
+   this.beforeX = null;
+   this.beforeY = null;
+   this.isDrawing = false;
+
+   this.strokeStyle = this.getRandomColor();
+   this.lineWidth = 10;
+  };
+
+  Paint.prototype.getRandomColor = function() {
+   var r = Math.floor(Math.random() * 255);
+   var g = Math.floor(Math.random() * 255);
+   var b = Math.floor(Math.random() * 255);
+   return 'rgb(' + r + ',' + g + ',' + b + ')';
+  };
+
+  Paint.prototype.setEvents = function() {
+   var self = this;
+
+   $(this.canvas).mousedown(function (e) {
+   	console.log('ok.revy');
+   	self.down(e)
+   },false)
+/*
+   this.canvas.addEventListener('mousedown', function(event) {
+     self.down(event)
+   }, false);*/
+
+   this.canvas.addEventListener('mouseup', function(event) {
+     self.up(event);
+   }, false);
+
+   this.canvas.addEventListener('mousemove', function(event) {
+   	　 self.move(event);
+   }, false);
+
+   this.canvas.addEventListener('mouseout', function(event) {
+     self.up(event)
+   }, false);
+
+  };
+
+  Paint.prototype.down = function(event) {
+   var pos = this.getCursorPosition(event);
+   this.isDrawing = true;
+   this.beforeX = pos.x - 10;
+   this.beforeY = pos.y - 10;
+  };
+
+  Paint.prototype.up = function(event) {
+   this.isDrawing = false;
+  };
+
+  Paint.prototype.drawLine = function(points) {
+   this.context.beginPath();
+   this.context.strokeStyle = points.c;
+   this.context.lineWidth = this.lineWidth;
+   this.context.lineCap = 'round';
+   this.context.lineJoin = 'round';
+   this.context.moveTo(points.bx, points.by);
+   this.context.lineTo(points.ax, points.ay);
+   this.context.stroke();
+   this.context.closePath();
+  };
+
+  Paint.prototype.clearCanvas = function(socket) {
+   this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  };
+
+  Paint.prototype.move = function(event) {
+   if (!this.isDrawing) {
+     return;
+   }
+
+   var pos = this.getCursorPosition(event);
+
+   var points = {
+     bx: this.beforeX,
+     by: this.beforeY,
+     ax: pos.x- 10,
+     ay: pos.y - 10,
+     c: this.strokeStyle
+   };
+
+   if (socket) {
+     socket.emit("sendPoints",{message: JSON.stringify(points),roomId: minichat.roomId});
+   } else {
+     this.drawLine(points);
+   }
+
+   this.beforeX = points.ax;
+   this.beforeY = points.ay;
+  };
+
+  Paint.prototype.clear = function(socket) {
+     this.clearCanvas();
+  };
+
+  Paint.prototype.getCursorPosition = function(e) {
+    var x;
+    var y;
+    if (e.pageX || e.pageY) {
+      x = e.pageX;
+      y = e.pageY;
+    }
+    else {
+      x = e.clientX + document.body.scrollLeft +
+           document.documentElement.scrollLeft;
+      y = e.clientY + document.body.scrollTop +
+           document.documentElement.scrollTop;
+    }
+    x -= this.canvas.offsetLeft;
+	y -= this.canvas.offsetTop;
+	return {x: x, y: y};
+  };
+
+  window.Paint = Paint;
+
+}).apply(this);
