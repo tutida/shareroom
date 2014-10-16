@@ -1,3 +1,6 @@
 {
-  "npm": true
+  "npm": true,
+  "main": "app.js",
+  "args": [],
+  "envs": {}
 }
