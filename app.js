@@ -214,7 +214,7 @@ io.sockets.on('connection',function (socket) {
       var Name = data['Name'];
       Files[Name]['Downloaded'] += data['Data'].length;
       Files[Name]['Data'] += data['Data'];
-      if(Files[Name]['Downloaded'] == Files[Name]['FileSize']){
+      if(Files[Name]['Downloaded'] >= Files[Name]['FileSize']){
         var dirName = data['roomId'];
         try{
           fs.statSync("public/uploaded/" + dirName + "/");
