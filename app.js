@@ -8,7 +8,7 @@ var express = require('express')
   , crypto = require('crypto')
   , fs = require('fs')
   , util = require('util')
-
+var formidable = require('formidable');
 // maneger of socket,upload_file
 var socketsOf = {}
   , Files = {};
@@ -24,7 +24,8 @@ app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.favicon());
   app.use(express.logger('dev'));
-  app.use(express.bodyParser());
+  app.use(express.json())//         these sentence insteaded bodyparser
+  app.use(express.urlencoded())//
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
@@ -38,6 +39,31 @@ app.set('roomOf', roomOf);
 
 app.get('/', routes.index);
 app.post('/room', routes.room);
+app.post('/upload', function(req, res) {
+
+  var form = new formidable.IncomingForm();
+  form.encoding = "utf-8";
+  form.uploadDir = "./public"
+  form.on('progress', function(bytesReceived, bytesExpected) {
+    var percent = (bytesReceived / bytesExpected * 100) | 0;
+    console.log('Uploading: ' + percent + '%');
+  });
+  form.parse(req, function(err, fields, files) {
+    var roomId = fields.roomId;
+    try{
+      fs.statSync("public/uploaded/" + roomId + "/");
+    }catch(er){
+      fs.mkdirSync("public/uploaded/" + roomId + "/");
+    }
+    var oldPath = './' + files.upload._writeStream.path;
+    var newPath = './public/uploaded/' + roomId + "/" + files.upload.name;
+    fs.rename(oldPath, newPath, function(err) {
+      if (err) throw err;
+      res.end();
+      emitToRoom(roomId, 'finish upload', {});
+    });
+  });
+});
 
 var server = http.createServer(app);
 var io = require('socket.io').listen(server, {'log level': 1});
@@ -214,7 +240,7 @@ io.sockets.on('connection',function (socket) {
       var Name = data['Name'];
       Files[Name]['Downloaded'] += data['Data'].length;
       Files[Name]['Data'] += data['Data'];
-      if(Files[Name]['Downloaded'] >= Files[Name]['FileSize']){
+      if(Files[Name]['Downloaded'] == Files[Name]['FileSize']){
         var dirName = data['roomId'];
         try{
           fs.statSync("public/uploaded/" + dirName + "/");

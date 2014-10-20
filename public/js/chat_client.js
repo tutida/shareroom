@@ -12,6 +12,9 @@
     socket.on('connected', function(data) {
       socket.emit('check credential', minichat);
     });
+    socket.on('hello', function(data) {
+      console.log('hi-pa-');
+    });
 
     socket.on('credential ok', function(data) {
       socket.emit('request log', {});

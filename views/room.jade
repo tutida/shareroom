@@ -59,15 +59,24 @@ block content
       li#uploadWin-close ×
     ul.uploadWinContents
       li#uploadArea
-        p#selectFile
-          label#fileBoxLabel(for='fileBox') Choose A File: 
-          input#fileBox(type='file')
-        p#fileName
-          label#nameBoxLabel(for='nameBox') Name: 
-          input#nameBox(type='text')
-        a#uploadButton upload
+        form(action='/upload', enctype='multipart/form-data', method='post', target="targetFrame")
+          input(type='hidden', name='roomId', value='#{room.name}#{room.password}')
+          br
+          input#fileForm(type='file', name='upload', multiple='multiple')
+          br
+          input(type='submit', value='Upload',onClick="return myFunction();")
       li#filesArea.hide
         #UploadedFiles
+  iframe#targetFrame(name='targetFrame', src='', style="display:none;")
+  script.
+    function myFunction(){
+      if(document.getElementById('fileForm').value != ""){
+        return true;
+      }else{
+        alert("Please Select A File");
+        return false;
+      }
+    }
 
   //パレットウィンドウ
   #palette.hide
