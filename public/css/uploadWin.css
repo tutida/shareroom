@@ -19,10 +19,10 @@
 }
 
 .uploadWinTab li{
-  background:#ffa07a;
+  background:#66cdaa;
   padding-top: 5px;
   padding-bottom: 5px;
-  width: 235px;
+  width: 471px;
   margin-right: 1px;
   font-size: 18px;
   font-weight: bold;
@@ -32,13 +32,12 @@
   cursor:pointer;cursor:hand;
 }
 
-.uploadWinTab li.select{background:#ffdbf7;}
 
 #uploadWin-close{
   width: 28px;
   height: 20px;
   margin-right: 0px;
-  background-color: #bc8f8f;
+  background-color: #2e8b57;
   color: #fff;
 }
 
@@ -53,45 +52,54 @@ ul.uploadWinContents{
   width: 500px;
   height: 245px;
   margin: 0px;
-  background:#ffdbf7;
-}
-
-#selectFile,#fileName{
- margin-top: 0px;
- padding-top: 30px;
- padding-left: 20px;
-}
-
-#fileBoxLabel,#nameBoxLabel{
-  font-size: 18px;
-  font-weight: bold;
-  float:left;
-  margin-top: 3px;
+  background:#b2ffd8;
 }
 
 #fileBox{
   font-size: 18px;
   font-weight: bold;
-
   margin: 0px 0px 0px 20px;
 }
 
-#nameBox{
-  font-size: 18px;
-  font-weight: bold;
-  width: 350px;
-  margin: 0px 0px 0px 10px;
+.thumbnailList{
+  margin: 5px 0px 10px 0px;
+  width: 480px;
+  height: 100px;
+  padding: 0px;
+}
+.thumbnail{
+  width: 160px;
+  height: 100px;
+  padding: 0px;
+  float: left;
 }
 
+.click {
+  max-width: 150px;
+  max-height: 80px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  cursor:pointer;cursor:hand
+}
+.filename {
+  font-size: 15px;
+  width: 140px;
+  height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0px 10px 0px 10px;
+}
 #uploadButton{
-  font-size: 25px;
+  margin-top: 4px;
+  font-size: 20px;
   font-weight: bold;
-  margin-left: 190px;
-  margin-top: 10px;
 }
 
-#filesArea{
-  overflow: scroll;
+#UploadedFiles{
+  height: 200px;
+  width: 500px;
+  overflow-y: scroll; 
 }
 
 #Uploading{
@@ -99,71 +107,10 @@ ul.uploadWinContents{
   padding-left: 40px;
 }
 
-#List,#NameArea,#Uploaded,#percent,#MB{
+#List{
   margin: 0px;
   padding-top: 10px;
   padding-left: 10px;
   font-size: 18px;
   font-weight: bold;
-}
-
-#ProgressContainer {
-  width: 396px;
-  height: 36px;
-  background: #F8F8F8;
-  margin-top: 14px;
-  border: 1px solid #E8E8E8;
-  border-top: 1px solid #D8D8D8;
-
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  padding: 2px;
-}
-
-#ProgressBar {
-  height: 100%;
-  width: 0%;
-
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  background: -webkit-gradient( linear, left top, left bottom, from(#a50aad), color-stop(0.50, #6b0d6b), to(#4a074a));
-}
-
-#done{
-  margin: 0px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  font-size: 24px;
-  font-weight: bold;
-  text-align: center
-}
-
-#Thumb {
-  max-width: 230px;
-  max-height: 130px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto
-}
-
-#Thumb_list {
-  max-width: 150px;
-  max-height: 150px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.click {
-  font-size: 4;
-  cursor:pointer;cursor:hand
-}
-
-#Restart {
-  position: absolute;
-  bottom: 5px;
-  right: 160px;
-  font-size: 20px;
 }

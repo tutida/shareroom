@@ -44,25 +44,43 @@ app.post('/upload', function(req, res) {
   var form = new formidable.IncomingForm();
   form.encoding = "utf-8";
   form.uploadDir = "./public"
-  form.on('progress', function(bytesReceived, bytesExpected) {
-    var percent = (bytesReceived / bytesExpected * 100) | 0;
-    console.log('Uploading: ' + percent + '%');
-  });
-  form.parse(req, function(err, fields, files) {
-    var roomId = fields.roomId;
-    try{
-      fs.statSync("public/uploaded/" + roomId + "/");
-    }catch(er){
-      fs.mkdirSync("public/uploaded/" + roomId + "/");
-    }
-    var oldPath = './' + files.upload._writeStream.path;
-    var newPath = './public/uploaded/' + roomId + "/" + files.upload.name;
-    fs.rename(oldPath, newPath, function(err) {
-      if (err) throw err;
+
+  var linkPath = []
+      ,linkName = []
+      ,roomId = '';
+
+  form
+    .on('field', function(field, value) {
+      roomId = value;
+    })
+    .on('file', function(field, file) {
+      linkPath.push(file.path);
+      linkName.push(file.name);
+    })
+    .on('end', function() {
+      try{
+        fs.statSync("public/uploaded/" + roomId + "/");
+      }catch(er){
+        fs.mkdirSync("public/uploaded/" + roomId + "/");
+      }
+
+      for(i=0; i<linkPath.length; i++){
+        var oldPath = './' + linkPath[i];
+        var newPath = './public/uploaded/' + roomId + "/" +linkName[i];
+        fs.rename(oldPath, newPath, function(err) {
+          if (err) throw err;
+        });
+      }
       res.end();
       emitToRoom(roomId, 'finish upload', {});
+    })
+    .on('progress', function(bytesReceived, bytesExpected) {
+      var percent = (bytesReceived / bytesExpected * 100) | 0;
+      console.log('Uploading: ' + percent + '%');
     });
-  });
+
+
+  form.parse(req);
 });
 
 var server = http.createServer(app);
@@ -88,7 +106,7 @@ io.sockets.on('connection',function (socket) {
       if (!err) {
         fileList = files;
       } else {fileList.push('empty');}
-      if(data.state == 'connected'){
+      if(data.state == 'connected' || data.state == 'open'){
         socket.emit('dir result', fileList);
       }else if(data.state == 'renew'){
         emitToRoom(data.roomId, 'dir result', fileList);
@@ -234,44 +252,6 @@ io.sockets.on('connection',function (socket) {
           socket.emit('MoreData', { 'Place' : Place, Percent : '0' });
         }
       });
-  });
-  
-  socket.on('Upload', function (data){
-      var Name = data['Name'];
-      Files[Name]['Downloaded'] += data['Data'].length;
-      Files[Name]['Data'] += data['Data'];
-      if(Files[Name]['Downloaded'] == Files[Name]['FileSize']){
-        var dirName = data['roomId'];
-        try{
-          fs.statSync("public/uploaded/" + dirName + "/");
-        }catch(er){
-          fs.mkdirSync("public/uploaded/" + dirName + "/");
-        }
-
-        fs.write(Files[Name]['Handler'], Files[Name]['Data'], null, 'Binary', function(err, Writen){
-          var inp = fs.createReadStream("Temp/" + Name);
-          var out = fs.createWriteStream("public/uploaded/" + dirName + "/" + Name);
-          util.pump(inp, out, function(){
-            fs.unlink("Temp/" + Name, function () {
-              socket.emit('Done', {name: data['Name'],src: "/uploaded/" + dirName + "/" + Name});
-            });
-          });
-        });
-      }
-      else if(Files[Name]['Data'].length > 10485760){
-        fs.write(Files[Name]['Handler'], Files[Name]['Data'], null, 'Binary', function(err, Writen){
-          Files[Name]['Data'] = ""; 
-          var Place = Files[Name]['Downloaded'] / 524288;
-          var Percent = (Files[Name]['Downloaded'] / Files[Name]['FileSize']) * 100;
-          socket.emit('MoreData', { 'Place' : Place, 'Percent' :  Percent});
-        });
-      }
-      else
-      {
-        var Place = Files[Name]['Downloaded'] / 524288;
-        var Percent = (Files[Name]['Downloaded'] / Files[Name]['FileSize']) * 100;
-        socket.emit('MoreData', { 'Place' : Place, 'Percent' :  Percent});
-      }
   });
 
   socket.on('request points', function (roomId){

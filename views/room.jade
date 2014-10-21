@@ -54,23 +54,19 @@ block content
   //アップロードウィンドウ
   #uploadWin.hide
     ul.uploadWinTab
-      li#upload.select upload
-      li#files files
+      li#upload upload
       li#uploadWin-close ×
     ul.uploadWinContents
       li#uploadArea
         form(action='/upload', enctype='multipart/form-data', method='post', target="targetFrame")
           input(type='hidden', name='roomId', value='#{room.name}#{room.password}')
-          br
-          input#fileForm(type='file', name='upload', multiple='multiple')
-          br
-          input(type='submit', value='Upload',onClick="return myFunction();")
-      li#filesArea.hide
+          input#fileBox(type='file', name='upload', multiple='multiple')
+          input#uploadButton(type='submit', value='Upload',onClick="return myFunction();")
         #UploadedFiles
   iframe#targetFrame(name='targetFrame', src='', style="display:none;")
   script.
     function myFunction(){
-      if(document.getElementById('fileForm').value != ""){
+      if(document.getElementById('fileBox').value != ""){
         return true;
       }else{
         alert("Please Select A File");
