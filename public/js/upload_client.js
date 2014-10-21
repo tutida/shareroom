@@ -10,9 +10,6 @@
 
 	    socket.on('dir result', function(fileList) {
 			$('#UploadedFiles').empty();
-			if(fileList[0] != 'empty'){
-			  console.log(fileList[i].type);
-		    }
 			var html = "";
 			if(fileList[0] != 'empty'){
 				for(var i in fileList){
