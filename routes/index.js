@@ -2,7 +2,7 @@
  * GET home page.
  */
 
-var crypto = require('crypto');
+var crypto = require('crypto')
 
 exports.index = function(req, res){
   res.render('index', { title: 'Share-room',roomOf: module.parent.exports.set('roomOf')});
@@ -37,5 +37,62 @@ exports.room = function(req, res){
     mode: mode
   };
   res.render('room', params);
+};
+
+
+var fs = require('fs')
+  , formidable = require('formidable');
+
+exports.upload = function(req, res){
+  
+  var form = new formidable.IncomingForm();
+  form.encoding = "utf-8";
+  form.uploadDir = "./public"
+
+  var linkPath = []
+      ,linkName = []
+      ,roomId = '';
+
+  form
+    .on('field', function(field, value) {
+      roomId = value;
+    })
+    .on('file', function(field, file) {
+      linkPath.push(file.path);
+      linkName.push(file.name);
+    })
+    .on('end', function() {
+      try{
+        fs.statSync("public/uploaded/" + roomId + "/");
+      }catch(er){
+        fs.mkdirSync("public/uploaded/" + roomId + "/");
+      }
+
+      for(i=0; i<linkPath.length; i++){
+        var oldPath = './' + linkPath[i];
+        var newPath = './public/uploaded/' + roomId + "/" +linkName[i];
+        fs.rename(oldPath, newPath, function(err) {
+          if (err) throw err;
+        });
+      }
+      res.end();
+      emitToRoom(roomId, 'finish upload', {});
+    })
+    .on('progress', function(bytesReceived, bytesExpected) {
+      var percent = (bytesReceived / bytesExpected * 100) | 0;
+      emitToRoom(roomId, 'uploading', percent);
+    });
+  form.parse(req);
+};
+
+function emitToRoom(roomId, event, data, fn) {
+  var socketsOf =  module.parent.exports.set('socketsOf');
+  if (socketsOf[roomId] === undefined) {
+    return;
+  }
+  var sockets = socketsOf[roomId];
+  Object.keys(sockets).forEach(function (key) {
+    sockets[key].emit(event, data, fn);
+  });
 };
 

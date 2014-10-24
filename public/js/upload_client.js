@@ -4,7 +4,12 @@
 	      socket.emit('read dir', {roomId: minichat.roomId,state: 'connected'});
 	    });
 
+	    socket.on('uploading', function(data) {
+	      $('#UploadedFiles').addClass('drop')
+	    });
+
 	    socket.on('finish upload', function(data) {
+	      $('#UploadedFiles').removeClass('drop')
 	      socket.emit('read dir', {roomId: minichat.roomId,state: 'renew'});
 	    });
 
@@ -22,14 +27,46 @@
 					html += '<div class="filename">'
 					html += fileList[i];
 					html += '</div></div>'
-					if((i+1)%3 == 0){
+					var j = Number(i);
+					if((i+1)%3 == 0 || (j+1) == fileList.length){
 						html += '</div>';
 					}
 				}
-			}else html += '<p id="List">' + 'There are not Uploaded Files' + '</p>';
+				html += '<div id="delete">All Delete</div>';
+			}else html += '<p>' + 'There are not Uploaded Files' + '</p>';
 
 			$('#UploadedFiles').prepend(html);
 	    });
 	}); // end of document.ready()
 }).apply(this);
+
+$(function() {
+  
+    $('#uploadWin').draggable();
+
+    $('#upload-open').on('click', function(e){
+      $('#uploadWin').animate({height: "toggle", opacity: "toggle"},"slow");
+      socket.emit('read dir', {roomId: minichat.roomId,state: 'open'});
+    });
+
+    $('.uploadWinTab li').click(function(){
+      var index = $('.uploadWinTab li').index(this);
+      if(index == 1){
+        $('#uploadWin').animate({height: "toggle", opacity: "toggle"},"slow");
+      }
+    });
+
+    $('#uploadButton').button();
+
+    $(document).on('click', '.click', function(){
+        src2 = $(this).context.src
+        socket.emit('imagePaste', {src: src2,roomId: minichat.roomId});
+    });
+
+    $(document).on('click', '#delete', function(){
+		if(window.confirm('アップロードされたファイルが削除されます。\nよろしいですか？')){
+			socket.emit('delete dir', minichat.roomId);
+		}else　return;
+    });
+});
 

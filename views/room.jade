@@ -1,18 +1,20 @@
 extends layout
 block content
+
   //styleSheet
   link(rel='stylesheet', href='/css/room.css')
   link(rel='stylesheet', href='/css/palette.css')
   link(rel='stylesheet', href='/css/uploadWin.css')
   link(rel='stylesheet', href='/css/jquery.pageslide.css')
+
   //Javascript
   script(src='/js/paint_client.js')
   script(src='/js/chat_client.js')
   script(src='/js/upload_client.js')
   script(src='/js/tab.js')
   script(src='/js/palette.js')
-  script(src='/js/uploadWin.js')
   script(src='/js/jquery.pageslide.min.js')
+
   script.
     var socket = io.connect();
     var minichat = {
@@ -61,11 +63,11 @@ block content
         form(action='/upload', enctype='multipart/form-data', method='post', target="targetFrame")
           input(type='hidden', name='roomId', value='#{room.name}#{room.password}')
           input#fileBox(type='file', name='upload', multiple='multiple')
-          input#uploadButton(type='submit', value='Upload',onClick="return myFunction();")
+          input#uploadButton(type='submit', value='Upload',onClick="return fileCheck();")
         #UploadedFiles
   iframe#targetFrame(name='targetFrame', src='', style="display:none;")
   script.
-    function myFunction(){
+    function fileCheck(){
       if(document.getElementById('fileBox').value != ""){
         return true;
       }else{

@@ -8,87 +8,41 @@ var express = require('express')
   , crypto = require('crypto')
   , fs = require('fs')
   , util = require('util')
-var formidable = require('formidable');
-// maneger of socket,upload_file
-var socketsOf = {}
-  , Files = {};
+  , formidable = require('formidable');
 
-var roomOf = [];
+// maneger of socket,room
+var socketsOf = {}
+  , roomOf = [];
 
 //config for node-server
 var app = module.exports = express();
-
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon());
   app.use(express.logger('dev'));
-  app.use(express.json())//         these sentence insteaded bodyparser
-  app.use(express.urlencoded())//
+  app.use(express.json())//--------these sentence insteaded bodyparser
+  app.use(express.urlencoded())//-|
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
 });
-
 app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+//these local variavles change into global
+app.set('socketsOf', socketsOf);
 app.set('roomOf', roomOf);
 
+//list of rooting
 app.get('/', routes.index);
 app.post('/room', routes.room);
-app.post('/upload', function(req, res) {
-
-  var form = new formidable.IncomingForm();
-  form.encoding = "utf-8";
-  form.uploadDir = "./public"
-
-  var linkPath = []
-      ,linkName = []
-      ,roomId = '';
-
-  form
-    .on('field', function(field, value) {
-      roomId = value;
-    })
-    .on('file', function(field, file) {
-      linkPath.push(file.path);
-      linkName.push(file.name);
-    })
-    .on('end', function() {
-      try{
-        fs.statSync("public/uploaded/" + roomId + "/");
-      }catch(er){
-        fs.mkdirSync("public/uploaded/" + roomId + "/");
-      }
-
-      for(i=0; i<linkPath.length; i++){
-        var oldPath = './' + linkPath[i];
-        var newPath = './public/uploaded/' + roomId + "/" +linkName[i];
-        fs.rename(oldPath, newPath, function(err) {
-          if (err) throw err;
-        });
-      }
-      res.end();
-      emitToRoom(roomId, 'finish upload', {});
-    })
-    .on('progress', function(bytesReceived, bytesExpected) {
-      var percent = (bytesReceived / bytesExpected * 100) | 0;
-      console.log('Uploading: ' + percent + '%');
-    });
-
-
-  form.parse(req);
-});
+app.post('/upload', routes.upload);
 
 var server = http.createServer(app);
 var io = require('socket.io').listen(server, {'log level': 1});
-
-//set bufSize
-io.set('destroy buffer size','auto');
-
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
@@ -99,20 +53,6 @@ server.listen(app.get('port'), function(){
 io.sockets.on('connection',function (socket) {
   
   socket.emit('connected', {});
-
-  socket.on('read dir',function (data, fn){
-    fs.readdir("public/uploaded/" + data.roomId, function(err, files){
-      var fileList = [];
-      if (!err) {
-        fileList = files;
-      } else {fileList.push('empty');}
-      if(data.state == 'connected' || data.state == 'open'){
-        socket.emit('dir result', fileList);
-      }else if(data.state == 'renew'){
-        emitToRoom(data.roomId, 'dir result', fileList);
-      }
-    });
-  });
 
   socket.on('hash password', function (password, fn) {
     var hashedPassword = '';
@@ -169,7 +109,6 @@ io.sockets.on('connection',function (socket) {
     shasum.update('-' + message.roomId);
     message.id = (new Date()).getTime() + '-' + shasum.digest('hex');
     emitToRoom(message.roomId, 'push message', message);
-
   });
 
   socket.on('disconnect', function () {
@@ -227,33 +166,6 @@ io.sockets.on('connection',function (socket) {
     });
   });
 
-  socket.on('Start', function (data) { 
-      var Name = data['Name'];
-      Files[Name] = {  
-        FileSize : data['Size'],
-        Data   : "",
-        Downloaded : 0
-      }
-      var Place = 0;
-      try{
-        var Stat = fs.statSync('Temp/' +  Name);
-        if(Stat.isFile())
-        {
-          Files[Name]['Downloaded'] = Stat.size;
-          Place = Stat.size / 524288;
-        }
-      }catch(er){}
-
-      fs.open("Temp/" + Name, 'a', 0755, function(err, fd){
-        if(err){
-          console.log(err);
-        }else{
-          Files[Name]['Handler'] = fd;
-          socket.emit('MoreData', { 'Place' : Place, Percent : '0' });
-        }
-      });
-  });
-
   socket.on('request points', function (roomId){
   	emitToRoom(roomId, 'request paintLog', {}, function (data) {
       socket.emit('resize canvas', {width:data.width,height:data.height}); 
@@ -280,8 +192,56 @@ io.sockets.on('connection',function (socket) {
   socket.on('imagePaste', function (data){
   	emitToRoom(data.roomId, 'paste', data.src);
   });
+
+  socket.on('delete dir',function (data, fn){
+    deleteFolderRecursive("public/uploaded/" + data);
+    emitToRoom(data, 'finish upload');
+  });
+
+  socket.on('read dir',function (data, fn){
+    fs.readdir("public/uploaded/" + data.roomId, function(err, files){
+      var fileList = [];
+      if (!err) {
+        fileList = files;
+      } else {fileList.push('empty');}
+      fileList.sort(compareFileNames);
+      if(data.state == 'connected' || data.state == 'open'){
+        socket.emit('dir result', fileList);
+      }else if(data.state == 'renew'){
+        emitToRoom(data.roomId, 'dir result', fileList);
+      }
+    });
+  });
 });
 
+function compareFileNames(a, b) {
+  var fullWidthNums, i, j, A, B, aa, bb, fwn;
+  fullWidthNums = '０１２３４５６７８９';
+  i = j = -1;
+  while (true) {
+    A = a.charAt(++i).toLowerCase();
+    B = b.charAt(++j).toLowerCase();
+    if (!A) return -1;
+    if (!B) return 1;
+    if (~(fwn = fullWidthNums.indexOf(A))) A = ''+fwn;
+    if (~(fwn = fullWidthNums.indexOf(B))) B = ''+fwn;
+    if (isFinite(A) && isFinite(B)) {
+      while ((aa = a.charAt(++i)) && isFinite(aa)
+      || ~(fwn = fullWidthNums.indexOf(aa)) && (aa = ''+fwn)) A += aa;
+      while ((bb = b.charAt(++j)) && isFinite(bb)
+      || ~(fwn = fullWidthNums.indexOf(bb)) && (bb = ''+fwn)) B += bb;
+      if (+A === +B) {
+        if (A.length === B.length) continue;
+        return B.length - A.length;
+      } else {
+        return +A - +B;
+      }
+    }
+    if (A < B) return -1;
+    if (A > B) return 1;
+  }
+  return 0;
+}
 
 //functions
 function emitToRoom(roomId, event, data, fn) {

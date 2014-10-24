@@ -182,25 +182,10 @@ body {
   margin:30px 0px 0px 170px;
   border-radius: 30px;
 }
-
 #enter{
   margin:10px 0px 0px 190px;
 }
 
-#testTag{
-  cursor:pointer;cursor:hand;
-  font-size: 50px;
-  background:#000;
-  width: 180px;
-  color: #fff;
-  padding: 5px 30px 5px 30px;
-  margin:30px 0px 0px 170px;
-  border-radius: 30px;
-}
-
-#test{
-  margin:10px 0px 0px 190px;
-}
 
 .roomList{
   background: #f3f3f3;

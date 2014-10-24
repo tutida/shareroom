@@ -58,8 +58,7 @@ ul.uploadWinContents{
 #delete{
   width: 500px;
   background-color: #000;
-  color: #fff;
-  cursor:pointer;
+  color: #fff
 }
 
 #fileBox{

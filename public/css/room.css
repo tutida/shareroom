@@ -34,6 +34,63 @@ body {
 li .title{font-size: 50px;}
 li .exit{position: absolute; right: 100px; color: #ccc;}
 
+.sidemenu{
+  position: fixed;
+  overflow:hidden;
+  list-style:none;
+  top: 190px;
+  padding: 0;
+  margin: 0 0 0 0;
+}
+
+.sidemenu li{
+  cursor:pointer;cursor:hand;
+  background:#ccc;
+  color: #fff;
+  padding:20px;
+  margin-top:10px;
+  line-height: 20px;
+}
+
+.sidemenu li#open{background: #666;}
+.sidemenu li#palette-open{background: #4169e1;}
+.sidemenu li#upload-open{background: #38b48b}
+.sidemenu li#bookmark{background: #ff6347;}
+
+#pop{
+  display: none;
+  position: fixed;
+  top:190px;
+  left:95px;
+
+  width: 30px;
+  height: 30px;
+  padding: 0px;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  background-color: #ff8c00;
+
+  font-size: 18px;
+  font-weight: bolder;
+  line-height: 30px;
+  text-align: center;
+  text-decoration: none;
+  z-index: 10;
+}
+
+#members-box {
+  border-top: 1px solid #ddd;
+  position: fixed;
+  top:550px;
+}
+
+#members-box ul {
+  margin: 0 0 0 10px;
+  padding: 0;
+}
+
+
 #main-contents{
   margin-top: 50px;
   margin-left: 120px;
@@ -103,67 +160,6 @@ li .exit{position: absolute; right: 100px; color: #ccc;}
 .message .comment {
   word-wrap: break-word;
 }
-
-#members-box {
-  border-top: 1px solid #ddd;
-  position: fixed;
-  top:550px;
-}
-
-#members-box ul {
-  margin: 0 0 0 10px;
-  padding: 0;
-}
-#members-box li {
-  font-size: 100%;
-  list-style: none;
-}
-
-#pop{
-  display: none;
-  position: fixed;
-  top:190px;
-  left:95px;
-
-  width: 30px;
-  height: 30px;
-  padding: 0px;
-  -webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  border-radius: 50%;
-  background-color: #ff8c00;
-
-  font-size: 18px;
-  font-weight: bolder;
-  line-height: 30px;
-  text-align: center;
-  text-decoration: none;
-  z-index: 10;
-}
-
-.sidemenu{
-  position: fixed;
-  overflow:hidden;
-  list-style:none;
-  top: 190px;
-  padding: 0;
-  margin: 0 0 0 0;
-}
-
-.sidemenu li{
-  cursor:pointer;cursor:hand;
-  background:#ccc;
-  color: #fff;
-  padding:20px;
-  margin-top:10px;
-  line-height: 20px;
-}
-
-.sidemenu li#open{background: #666;}
-.sidemenu li#palette-open{background: #4169e1;}
-.sidemenu li#upload-open{background: #38b48b}
-.sidemenu li#bookmark{background: #ff6347;}
-
 
 .modal {
 position: fixed;
