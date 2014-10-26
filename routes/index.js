@@ -51,7 +51,8 @@ exports.upload = function(req, res){
 
   var linkPath = []
       ,linkName = []
-      ,roomId = '';
+      ,roomId = ''
+      ,prevPercent='';
 
   form
     .on('field', function(field, value) {
@@ -80,7 +81,11 @@ exports.upload = function(req, res){
     })
     .on('progress', function(bytesReceived, bytesExpected) {
       var percent = (bytesReceived / bytesExpected * 100) | 0;
-      emitToRoom(roomId, 'uploading', percent);
+      console.log(percent+"  "+prevPercent);
+      if(percent != prevPercent){
+        emitToRoom(roomId, 'uploading', percent);
+        prevPercent = percent;
+      }
     });
   form.parse(req);
 };

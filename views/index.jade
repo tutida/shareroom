@@ -6,7 +6,7 @@ block content
   #sub node.jsによるチャット+Canvasの共有
 
   #createTag Create
-  form#new.hide(action='/room/', method='post')
+  form#new(action='/room/', method='post')
     label(for='new-room-name') ルーム名：　
       input#new-room(type='text', name='roomName', placeholder='ルーム名を入力...')
     br
@@ -19,20 +19,23 @@ block content
       button.btn(type='submit', name='mode', value='create') 作成
 
   #enterTag Enter
-  #enter.hide
+  #enter
 
   script.
     var roomOf = !{JSON.stringify(roomOf)};
-    $('#createTag').on('click', function(e){
-      $('#new').animate({height: "toggle", opacity: "toggle"},"slow");
+    $(document).ready(function () {
+      listCreate()
     });
+
     $('#enterTag').on('click', function(e){
-      listCreate();
-      $('#enter').animate({height: "toggle", opacity: "toggle"},"slow");
+      location.reload();
     });
 
     function listCreate(){
       var Content = '';
+      if(roomOf.length == 0){
+        Content += 'please click Enter, or reload page';
+      }
       for(i=0; i<roomOf.length; i++){
         Content+= '<form action="/room/" class="roomList" method="post"><input type="hidden" name="roomName" value="'+roomOf[i]+'"><b>ルーム名：' + roomOf[i] +'</b><br>';
         Content+= '<label for="enter-name">ユーザ名：　<input id="enter-name" type="text" name="yourName" placeholder="表示名を入力..."/></label><label for="enter-password">パスワード：<label><input id="enter-password" type="password" name="password" placeholder="パスワードを入力..."/></label><button type="submit" name="mode" value="enter" class="btn">入室</button></label></form>'

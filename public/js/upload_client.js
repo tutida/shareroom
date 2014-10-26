@@ -5,7 +5,17 @@
 	    });
 
 	    socket.on('uploading', function(data) {
-	      $('#UploadedFiles').addClass('drop')
+	      if(document.getElementById("drop") == null){
+      		$('#UploadedFiles').addClass('drop')
+	      }
+	      var html = "";
+	      if(document.getElementById("progress") == null){
+	      	html ='<div id="progress">'+data+'％ uploading...</div>'
+	      	$('#UploadedFiles').append(html);	      	
+	      }else{
+	      	html ='<div id="progress">'+data+'％ uploading...</div>'
+	      	$('#progress').html(html);
+	      }
 	    });
 
 	    socket.on('finish upload', function(data) {
@@ -32,7 +42,7 @@
 						html += '</div>';
 					}
 				}
-				html += '<div id="delete">All Delete</div>';
+				html += '<div id="delete" align="center">All Delete</div>';
 			}else html += '<p>' + 'There are not Uploaded Files' + '</p>';
 
 			$('#UploadedFiles').prepend(html);
@@ -69,4 +79,3 @@ $(function() {
 		}else　return;
     });
 });
-
