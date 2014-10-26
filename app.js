@@ -10,9 +10,10 @@ var express = require('express')
   , util = require('util')
   , formidable = require('formidable');
 
-// maneger of socket,room
+// maneger of socket,room,filetype
 var socketsOf = {}
-  , roomOf = [];
+  , roomOf = []
+  , linkTypeOf = {};
 
 //config for node-server
 var app = module.exports = express();
@@ -35,6 +36,7 @@ app.configure('development', function(){
 //these local variavles change into global
 app.set('socketsOf', socketsOf);
 app.set('roomOf', roomOf);
+app.set('linkTypeOf', linkTypeOf);
 
 //list of rooting
 app.get('/', routes.index);
@@ -124,6 +126,7 @@ io.sockets.on('connection',function (socket) {
       var members = Object.keys(sockets);
       if (members.length === 0) {
         delete socketsOf[client.roomId];
+        delete linkTypeOf[client.roomId]
         deleteFolderRecursive("public/uploaded/" + client.roomId);
         for(i=0; i<roomOf.length; i++){
           if(roomOf[i] == client.roomName){
@@ -195,6 +198,7 @@ io.sockets.on('connection',function (socket) {
 
   socket.on('delete dir',function (data, fn){
     deleteFolderRecursive("public/uploaded/" + data);
+    delete linkTypeOf[data]
     emitToRoom(data, 'finish upload');
   });
 
@@ -205,10 +209,10 @@ io.sockets.on('connection',function (socket) {
         fileList = files;
       } else {fileList.push('empty');}
       fileList.sort(compareFileNames);
-      if(data.state == 'connected' || data.state == 'open'){
-        socket.emit('dir result', fileList);
+      if(data.state == 'open'){
+        socket.emit('dir result', {fileList : fileList,linkType : linkTypeOf[data.roomId]});
       }else if(data.state == 'renew'){
-        emitToRoom(data.roomId, 'dir result', fileList);
+        emitToRoom(data.roomId, 'dir result', {fileList : fileList,linkType : linkTypeOf[data.roomId]});
       }
     });
   });

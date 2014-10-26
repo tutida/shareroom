@@ -41,16 +41,17 @@ exports.room = function(req, res){
 
 
 var fs = require('fs')
-  , formidable = require('formidable');
+  , formidable = require('formidable')
 
 exports.upload = function(req, res){
   
   var form = new formidable.IncomingForm();
   form.encoding = "utf-8";
   form.uploadDir = "./public"
-
+ 
   var linkPath = []
       ,linkName = []
+      ,linkType = {}
       ,roomId = ''
       ,prevPercent='';
 
@@ -59,6 +60,10 @@ exports.upload = function(req, res){
       roomId = value;
     })
     .on('file', function(field, file) {
+      if(module.parent.exports.set('linkTypeOf')[roomId]){
+        linkType = module.parent.exports.set('linkTypeOf')[roomId]
+      }
+      linkType[file.name] = file.type;
       linkPath.push(file.path);
       linkName.push(file.name);
     })
@@ -78,10 +83,10 @@ exports.upload = function(req, res){
       }
       res.end();
       emitToRoom(roomId, 'finish upload', {});
+      module.parent.exports.set('linkTypeOf')[roomId] = linkType;
     })
     .on('progress', function(bytesReceived, bytesExpected) {
       var percent = (bytesReceived / bytesExpected * 100) | 0;
-      console.log(percent+"  "+prevPercent);
       if(percent != prevPercent){
         emitToRoom(roomId, 'uploading', percent);
         prevPercent = percent;

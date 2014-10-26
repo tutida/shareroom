@@ -85,7 +85,7 @@ ul.uploadWinContents{
   float: left;
 }
 
-.click {
+.images,.files{
   max-width: 150px;
   max-height: 80px;
   display: block;
