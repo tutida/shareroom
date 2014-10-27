@@ -25,7 +25,6 @@ $(function() {
       }else{
 
         var prevTab = $('.tab li').eq(globalIndex).prev();
-        console.log($('.tab li').eq(globalIndex));
         $('.tab li').eq(globalIndex).remove();
         $('.content li').eq(globalIndex).remove();
 
