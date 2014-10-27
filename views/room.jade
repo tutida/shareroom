@@ -32,9 +32,10 @@ block content
   #header
     ul.head
       li: .title share-room
-      li: .b ルーム名：#{room.name}
-      li: .b ユーザ名：#{user.name}
-      li: a(href='/').exit 退出
+      li#roomH: .b room：#{room.name}
+      li#userH: .b user：#{user.name}
+      li#notification.hide message
+      li: a(href='/').exit Exit
 
   ul.sidemenu
     li#open(href='#chat') chat-open
@@ -43,7 +44,7 @@ block content
     li#bookmark bookmark+
   #pop
   #members-box
-    h5 メンバー：
+    h5 member：
     ul#members
 
   #main-contents

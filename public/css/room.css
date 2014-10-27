@@ -32,7 +32,17 @@ body {
 }
 
 li .title{font-size: 50px;}
-li .exit{position: absolute; right: 100px; color: #ccc;}
+li .exit{position: absolute; right: 40px; color: #ccc;}
+
+#notification{
+  font-family:'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', メイリオ, Meiryo, 'ＭＳ Ｐゴシック', sans-serif;
+  font-weight: normal;
+  background: #444444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+}
 
 .sidemenu{
   position: fixed;
@@ -105,7 +115,8 @@ li .exit{position: absolute; right: 100px; color: #ccc;}
   background:#ccc;
   padding:5px 25px; 
   float:left; 
-  margin-right:1px; 
+  margin-right:1px;
+  margin-bottom: 1px; 
   cursor:pointer;cursor:hand;}
 .tab li.select{background:#eee;}
 
@@ -212,4 +223,16 @@ bottom: 0;
 left: 0;
 z-index: 1040;
 background-color: #000000;
+}
+
+.intercepter {
+  filter: alpha(opacity=50);
+  -moz-opacity: 0.5;
+  opacity: 0.5;
+  background: #fff;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index:2000;
 }

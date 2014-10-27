@@ -192,6 +192,10 @@ io.sockets.on('connection',function (socket) {
     emitToRoom(data.roomId, 'resize canvas',{width:data.width,height:data.height});
   });
 
+  socket.on('dropStart', function (data){
+    emitToRoom(data, 'add inter');
+  });
+
   socket.on('imagePaste', function (data){
   	emitToRoom(data.roomId, 'paste', data.src);
   });

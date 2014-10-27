@@ -51,7 +51,7 @@
     socket.on('push message', function (message) {
       messageLogs[message.id] = message;
       prependMessage(message);
-      popupMessage();
+      popupMessage(message);
     });
 
     $('#message').keypress(function (e) {
@@ -91,6 +91,14 @@
         $("#pop").fadeOut("fast");
       }
     });
+
+    function resize() {
+      console.log($('#userH').width());
+      var nofiSize = window.innerWidth - $('#userH').width() - $('#roomH').width() - 450;
+      $('#notification').css('width',nofiSize);
+    }
+    window.onload=resize;
+    window.onresize=resize;
   }); // document.ready()ここまで
 
   function authRetry(message) {
@@ -119,12 +127,16 @@
     });
   }
 
-  function popupMessage() {
+  function popupMessage(message) {
     if(!chatOpen){
       popupCount++;
       $("#pop").fadeIn("normal");
       $("#pop").text(popupCount);
     }
+    var str = message.body.replace(/\r?\n/g, " ");;
+    $('#notification').text('['+message.from+']'+' : '+str);
+    $('#notification').css('display','none')
+    $('#notification').animate({height: "toggle", opacity: "toggle"},"slow");
   }
 
 }).apply(this);

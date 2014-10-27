@@ -25,6 +25,10 @@
       paint.drawText(d);
     });
 
+    socket.on('add inter', function(message){
+      $('#main-contents').addClass('intercepter')
+    });
+
     socket.on('paste', function(src){
       var img = new Image();
       img.src = src;
@@ -44,6 +48,7 @@
           }
         }
         paint.context.drawImage(img, 0, 0,SizeW,SizeH);
+          $('#main-contents').removeClass('intercepter');        
       }
     });
 
@@ -72,8 +77,8 @@
       $(paint.canvas).bind("dragover", cancelEvent);
 
       var handleDroppedFile = function(event) {
+        socket.emit('dropStart', minichat.roomId);
         var file = event.originalEvent.dataTransfer.files[0];
-
         var fileReader = new FileReader();
         fileReader.onload = function(event) {
           var img = new Image();
@@ -114,7 +119,7 @@
   Paint.prototype.setEvents = function() {
    var self = this;
 
-   $(this.canvas).on('mousedown', function(e){
+   $(this.canvas).on('mousedown touchstart', function(e){
 
     self.lineWidth = $('#amount').val();
     self.strokeColor = $('#swatch').css('background-color');    
@@ -124,13 +129,13 @@
     }
    });
 
-   $(this.canvas).on('mouseup mouseout', function(e){
+   $(this.canvas).on('mouseup mouseout touchend touchcancel', function(e){
      if (self.isDrawing) {
        if(!input_text)  self.up(e);
      }
    });
 
-   $(this.canvas).on('mousemove', function(e){
+   $(this.canvas).on('mousemove touchmove', function(e){
      if (self.isDrawing) {
        if(!input_text)  self.move(e);
      }
