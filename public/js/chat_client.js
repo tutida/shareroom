@@ -93,7 +93,6 @@
     });
 
     function resize() {
-      console.log($('#userH').width());
       var nofiSize = window.innerWidth - $('#userH').width() - $('#roomH').width() - 450;
       $('#notification').css('width',nofiSize);
     }
