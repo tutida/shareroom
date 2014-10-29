@@ -121,6 +121,7 @@
 
    $(this.canvas).on('mousedown touchstart', function(e){
 
+   	e.preventDefault();
     self.lineWidth = $('#amount').val();
     self.strokeColor = $('#swatch').css('background-color');    
     if(!input_text) {
@@ -130,12 +131,14 @@
    });
 
    $(this.canvas).on('mouseup mouseout touchend touchcancel', function(e){
+   	 e.preventDefault();
      if (self.isDrawing) {
        if(!input_text)  self.up(e);
      }
    });
 
    $(this.canvas).on('mousemove touchmove', function(e){
+   	 e.preventDefault();
      if (self.isDrawing) {
        if(!input_text)  self.move(e);
      }
@@ -149,10 +152,15 @@
   };
 
   Paint.prototype.down = function(event) {
-   var pos = this.getCursorPosition(event);
    this.isDrawing = true;
-   this.beforeX = pos.x - 10;
-   this.beforeY = pos.y - 10;
+   var x;
+   var y;
+   x = event.pageX || event.originalEvent.changedTouches[0].pageX;
+   y = event.pageY || event.originalEvent.changedTouches[0].pageY;
+   x -= this.canvas.offsetLeft;
+   y -= this.canvas.offsetTop;
+   this.beforeX = x - 10;
+   this.beforeY = y - 10;
   };
 
   Paint.prototype.up = function(event) {
@@ -163,13 +171,19 @@
    if (!this.isDrawing) {
      return;
    }
-   
-   var pos = this.getCursorPosition(event);
+
+   var x;
+   var y;
+   x = event.pageX || event.originalEvent.changedTouches[0].pageX;
+   y = event.pageY || event.originalEvent.changedTouches[0].pageY;
+   x -= this.canvas.offsetLeft;
+   y -= this.canvas.offsetTop;
+
    var points = {
      bx: this.beforeX,
      by: this.beforeY,
-     ax: pos.x- 10,
-     ay: pos.y - 10,
+     ax: x- 10,
+     ay: y - 10,
      action: this.strokeAction,
      color: this.strokeColor,
      width: this.lineWidth
@@ -213,24 +227,6 @@
 
   Paint.prototype.clear = function(socket) {
      this.clearCanvas();
-  };
-
-  Paint.prototype.getCursorPosition = function(e) {
-    var x;
-    var y;
-    if (e.pageX || e.pageY) {
-      x = e.pageX;
-      y = e.pageY;
-    }
-    else {
-      x = e.clientX + document.body.scrollLeft +
-           document.documentElement.scrollLeft;
-      y = e.clientY + document.body.scrollTop +
-           document.documentElement.scrollTop;
-    }
-    x -= this.canvas.offsetLeft;
-	y -= this.canvas.offsetTop;
-	return {x: x, y: y};
   };
 
   Paint.prototype.sendText = function (pos) {
