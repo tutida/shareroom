@@ -146,15 +146,7 @@
    $(this.canvas).on('click', function(e){
    	 e.preventDefault();
      if(input_text){ 
-	   var x;
-	   var y;
-	   x = event.pageX || event.originalEvent.changedTouches[0].pageX;
-	   y = event.pageY || event.originalEvent.changedTouches[0].pageY;
-	   x -= self.canvas.offsetLeft;
-	   y -= self.canvas.offsetTop;
-
-	   var pos = {x:x, y:y};
-       self.sendText(pos)
+       self.sendText(e)
      }
    });
   };
@@ -237,7 +229,17 @@
      this.clearCanvas();
   };
 
-  Paint.prototype.sendText = function (pos) {
+  Paint.prototype.sendText = function (event) {
+
+    var x;
+    var y;
+    x = event.pageX || event.originalEvent.changedTouches[0].pageX;
+    y = event.pageY || event.originalEvent.changedTouches[0].pageY;
+    x -= this.canvas.offsetLeft;
+    y -= this.canvas.offsetTop;
+
+    var pos = {x:x, y:y};
+
     var text, size, color;
  
     text = $('#text').val();
@@ -252,8 +254,8 @@
       text: text,
       size: size,
       color: color,
-      x:pos.x,
-      y:pos.y
+      x:x,
+      y:y
     };
     socket.emit("sendText",{message: JSON.stringify(profs),roomId: minichat.roomId});
   }
