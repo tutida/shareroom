@@ -144,8 +144,16 @@
      }
    });
    $(this.canvas).on('click', function(e){
+   	 e.preventDefault();
      if(input_text){ 
-       var pos = self.getCursorPosition(e);
+	   var x;
+	   var y;
+	   x = event.pageX || event.originalEvent.changedTouches[0].pageX;
+	   y = event.pageY || event.originalEvent.changedTouches[0].pageY;
+	   x -= self.canvas.offsetLeft;
+	   y -= self.canvas.offsetTop;
+
+	   var pos = {x:x, y:y};
        self.sendText(pos)
      }
    });
