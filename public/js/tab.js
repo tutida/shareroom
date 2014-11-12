@@ -20,7 +20,7 @@ $(function() {
     });
 
     $('#bookmark').click(function(){
-      if(globalIndex==0){
+      if(globalIndex==0 || globalIndex==1){
         plusTag();
       }else{
 
