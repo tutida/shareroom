@@ -120,8 +120,8 @@
    var self = this;
 
    $(this.canvas).on('mousedown touchstart', function(e){
-   	e.preventDefault();
 
+   	e.preventDefault();
     self.lineWidth = $('#amount').val();
     self.strokeColor = $('#swatch').css('background-color');    
     if(!input_text) {
@@ -134,8 +134,6 @@
    	 e.preventDefault();
      if (self.isDrawing) {
        if(!input_text)  self.up(e);
-     }else if(input_text){
-		self.sendText(e);
      }
    });
 
@@ -143,6 +141,12 @@
    	 e.preventDefault();
      if (self.isDrawing) {
        if(!input_text)  self.move(e);
+     }
+   });
+   $(this.canvas).on('click', function(e){
+   	 e.preventDefault();
+     if(input_text){ 
+       self.sendText(e)
      }
    });
   };
@@ -233,10 +237,6 @@
     y = event.pageY || event.originalEvent.changedTouches[0].pageY;
     x -= this.canvas.offsetLeft;
     y -= this.canvas.offsetTop;
-
-    if(x <= 0 || y <= 0 || x > this.canvas.width || y > this.canvas.height){
-    	return;
-    }
 
     var pos = {x:x, y:y};
 
