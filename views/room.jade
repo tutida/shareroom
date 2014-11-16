@@ -35,7 +35,7 @@ block content
       li#roomH: .b room：#{room.name}
       li#userH: .b user：#{user.name}
       li#notification.hide message
-      li: a(href='/',onClick='console.log("hogehoge");').exit Exit
+      li: a(href='/').exit Exit
 
   ul.sidemenu
     li#open(href='#chat') chat-open
@@ -50,7 +50,7 @@ block content
   #main-contents
     ul.tab
       li.select(style='color:#fff;background:#333;') WhiteBoard
-      li(style='color:#fff;background:#333;') logs
+      li(style='color:#fff;background:#696969;') logs
     ul.content
       li 
         canvas#canvas-node.canvas(width='840',height='594')
@@ -62,81 +62,6 @@ block content
         br
         br
         #whiteBoardLog
-  style.
-    .logText{
-      float:left;
-      margin-right:5px;
-      margin-top:4px;
-    }
-    #logInterval{
-     float:left; 
-     margin-top:2px;
-     margin-right:10px;
-     width:40px;
-    }
-    #logButton{
-      background:#ccc;
-      padding:5px 25px; 
-      float:left; 
-      cursor:pointer;
-      vertical-align:middle;
-    }
-    .logImages{
-      max-width: 300px;
-      max-height: 300px;
-      display: block;
-    }
-    .logThumb{
-      font-family:'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', メイリオ, Meiryo, 'ＭＳ Ｐゴシック', sans-serif;
-      font-size:18px;
-      float:left;
-      display: block;
-      margin: 10px 10px 0px 0px;
-    }
-  script.
-    $('#logButton').click(function(){
-      if($('#logButton').text() == 'off'){
-        var intervalNum = $('#logInterval').val();
-        if(intervalNum <= 0){
-          window.alert('0以下の間隔は指定できません。');
-        }else{
-          if(window.confirm('WhiteBoardのログ機能をONにします。\n間隔：'+intervalNum+'分')){
-            $('#logButton').text('on');
-            $('#logButton').css({'background':'#696969','color':'#fff'});
-            document.getElementById("logInterval").disabled = "true";
-            whiteboardfLogger(intervalNum);
-          }
-        }
-      }else if($('#logButton').text() == 'on'){
-        if(window.confirm('WhiteBoardのログ機能をOFFにします')){
-          $('#logButton').text('off');
-          $('#logButton').css({'background':'#ccc','color':'#000'});
-          document.getElementById("logInterval").disabled = "";
-          clearInterval(repeat);
-        }
-      }
-    });
-    var logNum = 0;
-    function whiteboardfLogger(num){
-      plusLog();
-      var interval = num * 60000; 
-      repeat = setInterval(function() {
-        logNum++;
-        plusLog();
-      }, interval);
-    }
-    function plusLog(){
-      var date = new Date();
-      var html = '<div class="logThumb"><img id="log'+logNum+'"style="border:10px solid #ccc;" class="logImages"/>'+ date.toLocaleString() +'</div>';
-      $('#whiteBoardLog').append(html);
-      logImg();
-    }
-    function logImg(){
-      var logId = "log" + logNum
-      var cvs = document.getElementById("canvas-node");
-      var png = cvs.toDataURL();
-      document.getElementById(logId).src = png;
-    }
 
   //アップロードウィンドウ
   #uploadWin.hide

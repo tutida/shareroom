@@ -120,6 +120,41 @@ li .exit{position: absolute; right: 40px; color: #ccc;}
   cursor:pointer;cursor:hand;}
 .tab li.select{background:#eee;}
 
+.logText{
+  float:left;
+  margin-right:5px;
+  margin-top:4px;
+}
+
+#logInterval{
+ float:left; 
+ margin-top:2px;
+ margin-right:10px;
+ width:40px;
+}
+
+#logButton{
+  background:#ccc;
+  padding:5px 25px; 
+  float:left; 
+  cursor:pointer;
+  vertical-align:middle;
+}
+
+.logImages{
+  max-width: 300px;
+  max-height: 300px;
+  display: block;
+}
+
+.logThumb{
+  font-family:'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', メイリオ, Meiryo, 'ＭＳ Ｐゴシック', sans-serif;
+  font-size:18px;
+  float:left;
+  display: block;
+  margin: 10px 10px 0px 0px;
+}
+
 .content li{list-style:none;}
 .hide {display:none;}
 

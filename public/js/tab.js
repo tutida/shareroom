@@ -51,4 +51,48 @@ $(function() {
       var png = cvs.toDataURL();
       document.getElementById(imgId).src = png;
     }
+
+    $('#logButton').click(function(){
+      if($('#logButton').text() == 'off'){
+        var intervalNum = $('#logInterval').val();
+        if(intervalNum <= 0){
+          window.alert('0以下の間隔は指定できません。');
+        }else{
+          if(window.confirm('WhiteBoardのログ機能をONにします。\n間隔：'+intervalNum+'分')){
+            $('#logButton').text('on');
+            $('#logButton').css({'background':'#696969','color':'#fff'});
+            document.getElementById("logInterval").disabled = "true";
+            whiteboardfLogger(intervalNum);
+          }
+        }
+      }else if($('#logButton').text() == 'on'){
+        if(window.confirm('WhiteBoardのログ機能をOFFにします')){
+          $('#logButton').text('off');
+          $('#logButton').css({'background':'#ccc','color':'#000'});
+          document.getElementById("logInterval").disabled = "";
+          clearInterval(repeat);
+        }
+      }
+    });
+    var logNum = 0;
+    function whiteboardfLogger(num){
+      plusLog();
+      var interval = num * 60000; 
+      repeat = setInterval(function() {
+        logNum++;
+        plusLog();
+      }, interval);
+    }
+    function plusLog(){
+      var date = new Date();
+      var html = '<div class="logThumb"><img id="log'+logNum+'"style="border:10px solid #ccc;" class="logImages"/>'+ date.toLocaleString() +'</div>';
+      $('#whiteBoardLog').append(html);
+      logImg();
+    }
+    function logImg(){
+      var logId = "log" + logNum
+      var cvs = document.getElementById("canvas-node");
+      var png = cvs.toDataURL();
+      document.getElementById(logId).src = png;
+    }
 });
