@@ -263,7 +263,7 @@ function emitToRoom(roomId, event, data, fn) {
 };
 
 function _formatDate(date) {
-  var mm = date.getMonth();
+  var mm = date.getMonth()+1;
   var dd = date.getDate();
   var HH = date.getHours();
   var MM = date.getMinutes();
